@@ -12,6 +12,12 @@ import java.util.Locale;
 import javax.swing.table.DefaultTableModel;
 import jxl.*;
 import jxl.read.biff.BiffException;
+import org.jgap.Configuration;
+import org.jgap.ConfigurationForTesting;
+import org.jgap.audit.*;
+import org.jgap.data.*;
+import org.jgap.impl.*;
+import org.jgap.xml.*;
 
 /**
  *
@@ -22,12 +28,14 @@ public class GA_Optimization extends javax.swing.JFrame {
     /**
      * Creates new form GA_Optimization
      */
-    private String[] columns={"Package ID","Weight"};
-    private DefaultTableModel dt = new DefaultTableModel(columns,0);
+    private String[] columns = {"Package ID", "Weight"};
+    public Configuration conf = new DefaultConfiguration();
+    private DefaultTableModel dt = new DefaultTableModel(columns, 0);
 
     public GA_Optimization() {
         initComponents();
-       
+        conf.setPreservFittestIndividual(true);
+        conf.setKeepPopulationSizeConstant(false);
         populateData();
     }
 
@@ -77,15 +85,15 @@ public class GA_Optimization extends javax.swing.JFrame {
 
             //Total Total No Of Columns in Sheet
             columnCount = s.getColumns();
-            int[] data=new int[2];
+            int[] data = new int[2];
             //Reading Individual Row Content
             for (int i = 1; i < rowCount; i++) {
                 //Get Individual Row
-                rowData = s.getRow(i);               
-                String [] row=new String[2];
-                row[0]=rowData[0].getContents();
-                row[1]=rowData[1].getContents();
-                
+                rowData = s.getRow(i);
+                String[] row = new String[2];
+                row[0] = rowData[0].getContents();
+                row[1] = rowData[1].getContents();
+
                 dt.addRow(row);
             }
             workbook.close();
@@ -118,11 +126,25 @@ public class GA_Optimization extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTable1.setModel(dt);
         jScrollPane1.setViewportView(jTable1);
+
+        jLabel1.setText("Method :");
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Order", "Group" }));
+
+        jButton1.setText("Optimize");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -130,19 +152,37 @@ public class GA_Optimization extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(307, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 396, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+                .addContainerGap(119, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(156, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 531, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton1)))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -186,6 +226,9 @@ public class GA_Optimization extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
