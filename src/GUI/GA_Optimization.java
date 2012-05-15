@@ -4,16 +4,18 @@
  */
 package GUI;
 
+import GAFiles.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 import jxl.*;
 import jxl.read.biff.BiffException;
-import org.jgap.Configuration;
-import org.jgap.ConfigurationForTesting;
+import org.jgap.*;
 import org.jgap.audit.*;
 import org.jgap.data.*;
 import org.jgap.impl.*;
@@ -31,12 +33,27 @@ public class GA_Optimization extends javax.swing.JFrame {
     private String[] columns = {"Package ID", "Weight"};
     public Configuration conf = new DefaultConfiguration();
     private DefaultTableModel dt = new DefaultTableModel(columns, 0);
+    /*private SwapMutate mutationOperator;
+    private OrderCrossOver orderCrossOver;
+    private int populationSize = 200;
+    private Genotype genoType;*/
 
     public GA_Optimization() {
-        initComponents();
-        conf.setPreservFittestIndividual(true);
-        conf.setKeepPopulationSizeConstant(false);
-        populateData();
+       // try {
+            initComponents();
+            /*conf.setPreservFittestIndividual(true);
+            conf.setKeepPopulationSizeConstant(false);
+            conf.getGeneticOperators().clear();
+            mutationOperator = new SwapMutate();
+            orderCrossOver = new OrderCrossOver(conf);
+            conf.addGeneticOperator(mutationOperator);
+            conf.addGeneticOperator(orderCrossOver);
+            conf.setPopulationSize(populationSize);
+*/
+            populateData();
+  /*      } catch (InvalidConfigurationException ex) {
+            Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
     }
 
     public void populateData() {
@@ -180,8 +197,34 @@ public class GA_Optimization extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-        
+       /* try {
+            genoType = Genotype.randomInitialGenotype(conf);
+            Gene[] sampleGene = new Gene[64];
+            for (int i = 0; i < 64; i++) {
+                try {
+                    sampleGene[i] = new IntegerGene();
+                } catch (InvalidConfigurationException ex) {
+                    Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            try {
+
+                Constraint constraint = new Constraint();
+                //what they have worked on is keeping size of chromosome to 64 shile supplying 1 gene what
+                //i am doing is keeping 64 gene with no specific size
+                
+                IChromosome sampleChromosome = new Chromosome(conf, sampleGene, constraint);
+            } catch (InvalidConfigurationException ex) {
+                Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            conf.setPopulationSize(100);
+            Genotype population = Genotype.randomInitialGenotype(conf);
+
+            population.evolve();
+        } catch (InvalidConfigurationException ex) {
+            Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
