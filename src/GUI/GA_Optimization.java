@@ -33,15 +33,15 @@ public class GA_Optimization extends javax.swing.JFrame {
     private String[] columns = {"Package ID", "Weight"};
     public Configuration conf = new DefaultConfiguration();
     private DefaultTableModel dt = new DefaultTableModel(columns, 0);
-    /*private SwapMutate mutationOperator;
+    private SwapMutate mutationOperator;
     private OrderCrossOver orderCrossOver;
     private int populationSize = 200;
-    private Genotype genoType;*/
+    private Genotype genoType;
 
     public GA_Optimization() {
-       // try {
+        try {
             initComponents();
-            /*conf.setPreservFittestIndividual(true);
+            conf.setPreservFittestIndividual(true);
             conf.setKeepPopulationSizeConstant(false);
             conf.getGeneticOperators().clear();
             mutationOperator = new SwapMutate();
@@ -49,11 +49,11 @@ public class GA_Optimization extends javax.swing.JFrame {
             conf.addGeneticOperator(mutationOperator);
             conf.addGeneticOperator(orderCrossOver);
             conf.setPopulationSize(populationSize);
-*/
+
             populateData();
-  /*      } catch (InvalidConfigurationException ex) {
+        } catch (InvalidConfigurationException ex) {
             Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        }
     }
 
     public void populateData() {
@@ -197,7 +197,7 @@ public class GA_Optimization extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       /* try {
+        try {
             genoType = Genotype.randomInitialGenotype(conf);
             Gene[] sampleGene = new Gene[64];
             for (int i = 0; i < 64; i++) {
@@ -223,7 +223,7 @@ public class GA_Optimization extends javax.swing.JFrame {
             population.evolve();
         } catch (InvalidConfigurationException ex) {
             Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        }
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
