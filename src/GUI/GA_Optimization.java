@@ -37,7 +37,9 @@ public class GA_Optimization extends javax.swing.JFrame {
     private OrderCrossOver orderCrossOver;
     private int populationSize = 200;
     private Genotype genoType;
-
+    private int MAX_ALLOWED_EVOLUTIONS = 2000;
+    
+    
     public GA_Optimization() {
         try {
             initComponents();
@@ -203,29 +205,49 @@ public class GA_Optimization extends javax.swing.JFrame {
             for (int i = 0; i < 64; i++) {
                 try {
                     sampleGene[i] = new IntegerGene();
+                    sampleGene[i].setAllele(new Integer(i));
                 } catch (InvalidConfigurationException ex) {
                     Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            try {
+            
+            Constraint constraint = new Constraint();
+            //what they have worked on is keeping size of chromosome to 64 shile supplying 1 gene what
+            //i am doing is keeping 64 gene with no specific size
 
-                Constraint constraint = new Constraint();
-                //what they have worked on is keeping size of chromosome to 64 shile supplying 1 gene what
-                //i am doing is keeping 64 gene with no specific size
-                
-                IChromosome sampleChromosome = new Chromosome(conf, sampleGene, constraint);
-            } catch (InvalidConfigurationException ex) {
-                Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            IChromosome sampleChromosome = new Chromosome(conf, sampleGene, constraint);
+            conf.setSampleChromosome(sampleChromosome);
+            WeightDistributionUniformity fitness = new WeightDistributionUniformity();
+
+            conf.setFitnessFunction(fitness);
+
+
             conf.setPopulationSize(100);
             Genotype population = Genotype.randomInitialGenotype(conf);
-
-            population.evolve();
+            for (int i = 0; i < MAX_ALLOWED_EVOLUTIONS; i++) {
+                if (!uniqueChromosomes(population.getPopulation())) {
+                    throw new RuntimeException("Invalid state in generation " + i);
+                }
+                population.evolve();
+            }
         } catch (InvalidConfigurationException ex) {
             Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
+    public static boolean uniqueChromosomes(Population a_pop) {
+        // Check that all chromosomes are unique
+        for (int i = 0; i < a_pop.size() - 1; i++) {
+            IChromosome c = a_pop.getChromosome(i);
+            for (int j = i + 1; j < a_pop.size(); j++) {
+                IChromosome c2 = a_pop.getChromosome(j);
+                if (c == c2) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     /**
      * @param args the command line arguments
