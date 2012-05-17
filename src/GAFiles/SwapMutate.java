@@ -4,6 +4,7 @@
  */
 package GAFiles;
 
+import org.jgap.Configuration;
 import org.jgap.InvalidConfigurationException;
 import org.jgap.impl.MutationOperator;
 
@@ -12,7 +13,7 @@ import org.jgap.impl.MutationOperator;
  * @author Pk
  */
 public class SwapMutate extends MutationOperator{
-    public SwapMutate() throws InvalidConfigurationException {
-        super();
+    public SwapMutate(Configuration config) throws InvalidConfigurationException {
+        super(config);
     }
 }

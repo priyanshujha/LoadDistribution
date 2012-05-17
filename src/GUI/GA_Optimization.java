@@ -5,6 +5,7 @@
 package GUI;
 
 import GAFiles.*;
+import Package.PackageSpecifications;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class GA_Optimization extends javax.swing.JFrame {
     /**
      * Creates new form GA_Optimization
      */
-    private String[] columns = {"Package ID", "Weight"};
+    private String[] columns = {"Package ID", "Weight","Length","Breadth","Height","Safety"};
     public Configuration conf = new DefaultConfiguration();
     private DefaultTableModel dt = new DefaultTableModel(columns, 0);
     private SwapMutate mutationOperator;
@@ -38,20 +39,21 @@ public class GA_Optimization extends javax.swing.JFrame {
     private int populationSize = 200;
     private Genotype genoType;
     private int MAX_ALLOWED_EVOLUTIONS = 2000;
-    
-    
+    private PackageSpecifications[] packages;
+
     public GA_Optimization() {
         try {
             initComponents();
             conf.setPreservFittestIndividual(true);
             conf.setKeepPopulationSizeConstant(false);
             conf.getGeneticOperators().clear();
-            mutationOperator = new SwapMutate();
+            mutationOperator = new SwapMutate(conf);
             orderCrossOver = new OrderCrossOver(conf);
             conf.addGeneticOperator(mutationOperator);
             conf.addGeneticOperator(orderCrossOver);
             conf.setPopulationSize(populationSize);
-
+            packages = new PackageSpecifications[64];
+            
             populateData();
         } catch (InvalidConfigurationException ex) {
             Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
@@ -104,14 +106,27 @@ public class GA_Optimization extends javax.swing.JFrame {
 
             //Total Total No Of Columns in Sheet
             columnCount = s.getColumns();
-            int[] data = new int[2];
+
             //Reading Individual Row Content
             for (int i = 1; i < rowCount; i++) {
                 //Get Individual Row
                 rowData = s.getRow(i);
-                String[] row = new String[2];
+                String[] row = new String[6];
                 row[0] = rowData[0].getContents();
                 row[1] = rowData[1].getContents();
+                row[2] = rowData[2].getContents();
+                row[3] = rowData[3].getContents();
+                row[4] = rowData[4].getContents();
+                row[5] = rowData[5].getContents();
+                
+                packages[i - 1]=new PackageSpecifications();
+                
+                packages[i - 1].setId(i);
+                packages[i - 1].setWt(Integer.parseInt(rowData[1].getContents()));
+                packages[i - 1].setLength(Integer.parseInt(rowData[2].getContents()));
+                packages[i - 1].setBreadth(Integer.parseInt(rowData[3].getContents()));
+                packages[i - 1].setHeight(Integer.parseInt(rowData[4].getContents()));
+                packages[i - 1].setSafetyFactor(Integer.parseInt(rowData[5].getContents()));
 
                 dt.addRow(row);
             }
@@ -171,28 +186,29 @@ public class GA_Optimization extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 396, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 747, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
-                .addContainerGap(119, Short.MAX_VALUE))
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(51, 51, 51))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 531, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
                             .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton1)))
-                .addContainerGap(27, Short.MAX_VALUE))
+                        .addComponent(jButton1)
+                        .addGap(0, 569, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         pack();
@@ -210,18 +226,15 @@ public class GA_Optimization extends javax.swing.JFrame {
                     Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            
+
             Constraint constraint = new Constraint();
             //what they have worked on is keeping size of chromosome to 64 shile supplying 1 gene what
             //i am doing is keeping 64 gene with no specific size
 
             IChromosome sampleChromosome = new Chromosome(conf, sampleGene, constraint);
             conf.setSampleChromosome(sampleChromosome);
-            WeightDistributionUniformity fitness = new WeightDistributionUniformity();
-
+            WeightDistributionUniformity fitness = new WeightDistributionUniformity(packages);
             conf.setFitnessFunction(fitness);
-
-
             conf.setPopulationSize(100);
             Genotype population = Genotype.randomInitialGenotype(conf);
             for (int i = 0; i < MAX_ALLOWED_EVOLUTIONS; i++) {
@@ -230,9 +243,11 @@ public class GA_Optimization extends javax.swing.JFrame {
                 }
                 population.evolve();
             }
+
         } catch (InvalidConfigurationException ex) {
             Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
         }
+
 
     }//GEN-LAST:event_jButton1ActionPerformed
     public static boolean uniqueChromosomes(Population a_pop) {
