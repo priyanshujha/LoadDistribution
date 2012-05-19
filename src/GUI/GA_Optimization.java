@@ -31,7 +31,7 @@ public class GA_Optimization extends javax.swing.JFrame {
     /**
      * Creates new form GA_Optimization
      */
-    private String[] columns = {"Package ID", "Weight","Length","Breadth","Height","Safety"};
+    private String[] columns = {"Package ID", "Weight", "Length", "Breadth", "Height", "Safety"};
     public Configuration conf = new DefaultConfiguration();
     private DefaultTableModel dt = new DefaultTableModel(columns, 0);
     private SwapMutate mutationOperator;
@@ -39,7 +39,7 @@ public class GA_Optimization extends javax.swing.JFrame {
     private int populationSize = 200;
     private Genotype genoType;
     private int MAX_ALLOWED_EVOLUTIONS = 2000;
-    private PackageSpecifications[] packages;
+    
 
     public GA_Optimization() {
         try {
@@ -52,8 +52,8 @@ public class GA_Optimization extends javax.swing.JFrame {
             conf.addGeneticOperator(mutationOperator);
             conf.addGeneticOperator(orderCrossOver);
             conf.setPopulationSize(populationSize);
-            packages = new PackageSpecifications[64];
             
+
             populateData();
         } catch (InvalidConfigurationException ex) {
             Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
@@ -87,7 +87,10 @@ public class GA_Optimization extends javax.swing.JFrame {
         int columnCount = '0';
         DateCell dc = null;
         int totalSheet = 0;
-
+        int totalWeight = 0;
+        int totalLength = 0;
+        int totalHeight = 0;
+        int totalBreadth = 0;
         try {
             ws = new WorkbookSettings();
             ws.setLocale(new Locale("en", "EN"));
@@ -118,16 +121,19 @@ public class GA_Optimization extends javax.swing.JFrame {
                 row[3] = rowData[3].getContents();
                 row[4] = rowData[4].getContents();
                 row[5] = rowData[5].getContents();
-                
-                packages[i - 1]=new PackageSpecifications();
-                
-                packages[i - 1].setId(i);
-                packages[i - 1].setWt(Integer.parseInt(rowData[1].getContents()));
-                packages[i - 1].setLength(Integer.parseInt(rowData[2].getContents()));
-                packages[i - 1].setBreadth(Integer.parseInt(rowData[3].getContents()));
-                packages[i - 1].setHeight(Integer.parseInt(rowData[4].getContents()));
-                packages[i - 1].setSafetyFactor(Integer.parseInt(rowData[5].getContents()));
 
+                Configurations.PACKAGES[i - 1] = new PackageSpecifications();
+
+                Configurations.PACKAGES[i - 1].setId(i);
+                Configurations.PACKAGES[i - 1].setWt(Integer.parseInt(rowData[1].getContents()));
+                Configurations.PACKAGES[i - 1].setLength(Integer.parseInt(rowData[2].getContents()));
+                Configurations.PACKAGES[i - 1].setBreadth(Integer.parseInt(rowData[3].getContents()));
+                Configurations.PACKAGES[i - 1].setHeight(Integer.parseInt(rowData[4].getContents()));
+                Configurations.PACKAGES[i - 1].setSafetyFactor(Integer.parseInt(rowData[5].getContents()));
+                totalLength += Integer.parseInt(rowData[2].getContents());
+                totalWeight += Integer.parseInt(rowData[1].getContents());
+                totalBreadth += Integer.parseInt(rowData[3].getContents());
+                totalHeight += Integer.parseInt(rowData[4].getContents());
                 dt.addRow(row);
             }
             workbook.close();
@@ -136,6 +142,10 @@ public class GA_Optimization extends javax.swing.JFrame {
         } catch (BiffException e) {
             e.printStackTrace();
         }
+        Configurations.AVERAGE_HEIGHT =totalHeight/64;
+        Configurations.AVERAGE_BREADTH=totalBreadth/64;
+        Configurations.AVERAGE_WEIGHT=totalWeight/64;
+        Configurations.AVERAGE_LENGTH=totalLength/64;
     }
     /*
      * Returns the Headings used inside the excel sheet
@@ -233,7 +243,7 @@ public class GA_Optimization extends javax.swing.JFrame {
 
             IChromosome sampleChromosome = new Chromosome(conf, sampleGene, constraint);
             conf.setSampleChromosome(sampleChromosome);
-            WeightDistributionUniformity fitness = new WeightDistributionUniformity(packages);
+            WeightDistributionUniformity fitness = new WeightDistributionUniformity();
             conf.setFitnessFunction(fitness);
             conf.setPopulationSize(100);
             Genotype population = Genotype.randomInitialGenotype(conf);

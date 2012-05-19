@@ -18,18 +18,14 @@ import org.jgap.IChromosome;
 
 public class WeightDistributionUniformity extends FitnessFunction{
 
-    private PackageSpecifications[] packages=new PackageSpecifications[80];
-    public WeightDistributionUniformity(PackageSpecifications[] packages) {
-        this.packages=packages;
-    }
-
+    
     @Override
     protected double evaluate(IChromosome ic) {
         double score=0.0f;
         Gene[] genes=ic.getGenes();
         int[] packageId=new int[4];
         int count=0;
-        double stackscore=0.0f;
+        
         for(int i=0;i<64;i++)
         {
             while((i+1)%4!=0)
@@ -38,13 +34,30 @@ public class WeightDistributionUniformity extends FitnessFunction{
                 i++;
                 count++;
             }
-            stackscore=calculateStackScore(packageId);
+            score+=calculateStackScore(packageId);
         }
         return score;        
     }
 
     private double calculateStackScore(int[] packageId) {
         double stackScore=0.0f;
+        int length=packageId.length;
+        int stackLength=0;
+        int stackBreadth=0;
+        int stackHeight=0;        
+        int stackWeight=0;
+        for(int i=0;i<4;i++)
+        {
+            stackWeight+=Configurations.PACKAGES[packageId[i]].getWt();
+            stackLength+=Configurations.PACKAGES[packageId[i]].getLength();
+            stackBreadth+=Configurations.PACKAGES[packageId[i]].getBreadth();
+            stackHeight+=Configurations.PACKAGES[packageId[i]].getHeight();
+        }
+        double wtScore=Math.pow((stackWeight-Configurations.AVERAGE_WEIGHT),2);
+        double lengthScore=Math.pow((stackLength-Configurations.AVERAGE_LENGTH),2);
+        double breadthScore=Math.pow((stackBreadth-Configurations.AVERAGE_BREADTH),2);
+        double heightScore=Math.pow((stackWeight-Configurations.AVERAGE_HEIGHT),2);
+        stackScore=1/(wtScore+lengthScore+breadthScore+heightScore);
         return stackScore;
     }
     
