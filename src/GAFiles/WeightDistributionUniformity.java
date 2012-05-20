@@ -34,30 +34,31 @@ public class WeightDistributionUniformity extends FitnessFunction{
                 i++;
                 count++;
             }
-            score+=calculateStackScore(packageId);
+            score+=calculateStackScore(packageId,(i+1)%4);
         }
         return score;        
     }
 
-    private double calculateStackScore(int[] packageId) {
+    private double calculateStackScore(int[] packageId,int level) {
         double stackScore=0.0f;
         int length=packageId.length;
-        int stackLength=0;
-        int stackBreadth=0;
-        int stackHeight=0;        
+        int stackLength=0;        
         int stackWeight=0;
+        int penalty=0;
+        int safetyFactor=0;
         for(int i=0;i<4;i++)
         {
             stackWeight+=Configurations.PACKAGES[packageId[i]].getWt();
-            stackLength+=Configurations.PACKAGES[packageId[i]].getLength();
-            stackBreadth+=Configurations.PACKAGES[packageId[i]].getBreadth();
-            stackHeight+=Configurations.PACKAGES[packageId[i]].getHeight();
+            stackLength+=Configurations.PACKAGES[packageId[i]].getLength();            
+            safetyFactor=Configurations.PACKAGES[packageId[i]].getSafetyFactor(); 
+            if(safetyFactor!=level)
+            {
+                penalty+=Math.abs(safetyFactor-level)*10;
+            }            
         }
         double wtScore=Math.pow((stackWeight-Configurations.AVERAGE_WEIGHT),2);
-        double lengthScore=Math.pow((stackLength-Configurations.AVERAGE_LENGTH),2);
-        double breadthScore=Math.pow((stackBreadth-Configurations.AVERAGE_BREADTH),2);
-        double heightScore=Math.pow((stackWeight-Configurations.AVERAGE_HEIGHT),2);
-        stackScore=1/(wtScore+lengthScore+breadthScore+heightScore);
+        double lengthScore=Math.pow((stackLength-Configurations.AVERAGE_LENGTH),2);        
+        stackScore=1000/(wtScore+lengthScore+penalty);
         return stackScore;
     }
     

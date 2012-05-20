@@ -12,25 +12,7 @@ public class PackageSpecifications {
     private int id;
     private int wt;
     private int length;
-    private int breadth;
-    private int height;
     private int safetyFactor;
-
-    public int getBreadth() {
-        return breadth;
-    }
-
-    public void setBreadth(int breadth) {
-        this.breadth = breadth;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
 
     public int getId() {
         return id;

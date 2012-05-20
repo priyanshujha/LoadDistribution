@@ -16,7 +16,24 @@ public class Constraint implements IGeneConstraintChecker{
 
     @Override
     public boolean verify(Gene a_gene, Object a_alleleValue, IChromosome a_chromosome, int a_geneIndex) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (a_alleleValue == null) {
+            return true;
+        }
+        Gene[] geneSet=a_chromosome.getGenes();
+        int boxNumber=(a_geneIndex)/4;
+        int marker=boxNumber*4;
+        int totalLength=0;
+        int packageId=0;
+        for(int i=marker;i<(marker+4);i++)
+        {
+            packageId=(Integer)geneSet[i].getAllele();
+            totalLength+=Configurations.PACKAGES[packageId].getLength();
+        }
+        if(totalLength>Configurations.BOX_LENGTH)
+        {
+            return false;
+        }
+        return true;               
     }
     
 }

@@ -19,6 +19,7 @@ import jxl.read.biff.BiffException;
 import org.jgap.*;
 import org.jgap.audit.*;
 import org.jgap.data.*;
+import org.jgap.gp.function.Cosine;
 import org.jgap.impl.*;
 import org.jgap.xml.*;
 
@@ -89,8 +90,7 @@ public class GA_Optimization extends javax.swing.JFrame {
         int totalSheet = 0;
         int totalWeight = 0;
         int totalLength = 0;
-        int totalHeight = 0;
-        int totalBreadth = 0;
+        
         try {
             ws = new WorkbookSettings();
             ws.setLocale(new Locale("en", "EN"));
@@ -119,21 +119,15 @@ public class GA_Optimization extends javax.swing.JFrame {
                 row[1] = rowData[1].getContents();
                 row[2] = rowData[2].getContents();
                 row[3] = rowData[3].getContents();
-                row[4] = rowData[4].getContents();
-                row[5] = rowData[5].getContents();
 
                 Configurations.PACKAGES[i - 1] = new PackageSpecifications();
 
                 Configurations.PACKAGES[i - 1].setId(i);
                 Configurations.PACKAGES[i - 1].setWt(Integer.parseInt(rowData[1].getContents()));
                 Configurations.PACKAGES[i - 1].setLength(Integer.parseInt(rowData[2].getContents()));
-                Configurations.PACKAGES[i - 1].setBreadth(Integer.parseInt(rowData[3].getContents()));
-                Configurations.PACKAGES[i - 1].setHeight(Integer.parseInt(rowData[4].getContents()));
-                Configurations.PACKAGES[i - 1].setSafetyFactor(Integer.parseInt(rowData[5].getContents()));
+                Configurations.PACKAGES[i - 1].setSafetyFactor(Integer.parseInt(rowData[3].getContents()));
                 totalLength += Integer.parseInt(rowData[2].getContents());
-                totalWeight += Integer.parseInt(rowData[1].getContents());
-                totalBreadth += Integer.parseInt(rowData[3].getContents());
-                totalHeight += Integer.parseInt(rowData[4].getContents());
+                totalWeight += Integer.parseInt(rowData[1].getContents());                                
                 dt.addRow(row);
             }
             workbook.close();
@@ -142,10 +136,9 @@ public class GA_Optimization extends javax.swing.JFrame {
         } catch (BiffException e) {
             e.printStackTrace();
         }
-        Configurations.AVERAGE_HEIGHT =totalHeight/64;
-        Configurations.AVERAGE_BREADTH=totalBreadth/64;
         Configurations.AVERAGE_WEIGHT=totalWeight/64;
         Configurations.AVERAGE_LENGTH=totalLength/64;
+        Configurations.BOX_LENGTH=(int) (Configurations.AVERAGE_LENGTH*4+4);
     }
     /*
      * Returns the Headings used inside the excel sheet

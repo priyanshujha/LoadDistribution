@@ -13,8 +13,7 @@ import Package.PackageSpecifications;
 public class Configurations {
     public static double AVERAGE_WEIGHT=0.0f;
     public static double AVERAGE_LENGTH=0.0f;
-    public static double AVERAGE_HEIGHT=0.0f;
-    public static double AVERAGE_BREADTH=0.0f;
+    public static int BOX_LENGTH=0;
     public static PackageSpecifications[] PACKAGES=new PackageSpecifications[64];
     
 }

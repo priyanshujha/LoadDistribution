@@ -45,8 +45,6 @@ public class SwapMutate extends MutationOperator {
     private void mutate(IChromosome mate) {
         Gene[] parent = mate.getGenes();
         Gene[] child = new Gene[64];
-
-
         try {
             child = operateChromosome(parent, child);
             mate.setGenes(child);
@@ -63,7 +61,6 @@ public class SwapMutate extends MutationOperator {
         generator = getConfiguration().getRandomGenerator();
         int pos2 = generator.nextInt();
         child = parent;
-
         child[pos2] = parent[pos1];
         child[pos1] = parent[pos2];
         return child;
