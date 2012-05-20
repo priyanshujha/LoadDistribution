@@ -18,18 +18,19 @@ import org.jgap.util.ICloneable;
  */
 public class OrderCrossOver extends BaseGeneticOperator {
 
-    private double crossoverRate;
+    private double crossoverRate=0.1f;
     private boolean adaptive = false;
     private int crossoverPosition = 5;
+    private Configuration config;
 
     public OrderCrossOver(Configuration config) throws InvalidConfigurationException {
         super(config);
+        this.config=config;
     }
 
     @Override
     public void operate(Population a_population, List a_candidateChromosomes) {
-        int size = Math.min(getConfiguration().getPopulationSize(),
-                a_population.size());
+        int size = Math.min(getConfiguration().getPopulationSize(),a_population.size());
         // if 0.6, then 0.3*size times cross over,each take two
         int numCrossovers = (int) (size * crossoverRate);
         RandomGenerator generator = getConfiguration().getRandomGenerator();
@@ -82,7 +83,7 @@ public class OrderCrossOver extends BaseGeneticOperator {
         HashMap<Integer, Integer> values = new HashMap<Integer, Integer>();
         for (i = pos1; i <= pos2; i++) {
             try {
-                child[i] = new IntegerGene();
+                child[i] = new IntegerGene(config);
                 child[i] = parent1[i];
                 Integer value = (Integer) parent1[i].getAllele();
                 values.put(value.intValue(), value);
@@ -96,7 +97,7 @@ public class OrderCrossOver extends BaseGeneticOperator {
             Object val = values.get(value);
             if (val == null) {
                 try {
-                    child[position] = new IntegerGene();
+                    child[position] = new IntegerGene(config);
                     child[position] = parent2[i];
                     position++;
                     if (position == 64) {
@@ -119,7 +120,7 @@ public class OrderCrossOver extends BaseGeneticOperator {
             Object val = values.get(value);
             if (val == null) {
                 try {
-                    child[j] = new IntegerGene();
+                    child[j] = new IntegerGene(config);
                     child[j] = parent2[i];
                     i++;
                 } catch (InvalidConfigurationException ex) {

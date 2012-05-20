@@ -10,6 +10,7 @@ import org.jgap.Chromosome;
 import org.jgap.FitnessFunction;
 import org.jgap.Gene;
 import org.jgap.IChromosome;
+import org.jgap.impl.IntegerGene;
 
 /**
  *
@@ -30,10 +31,12 @@ public class WeightDistributionUniformity extends FitnessFunction{
         {
             while((i+1)%4!=0)
             {
-                packageId[count]=(Integer)genes[i].getAllele();
+                IntegerGene gene=(IntegerGene) genes[i];
+                packageId[count]=gene.intValue();
                 i++;
                 count++;
             }
+            count=0;
             score+=calculateStackScore(packageId,(i+1)%4);
         }
         return score;        
@@ -48,6 +51,7 @@ public class WeightDistributionUniformity extends FitnessFunction{
         int safetyFactor=0;
         for(int i=0;i<4;i++)
         {
+            
             stackWeight+=Configurations.PACKAGES[packageId[i]].getWt();
             stackLength+=Configurations.PACKAGES[packageId[i]].getLength();            
             safetyFactor=Configurations.PACKAGES[packageId[i]].getSafetyFactor(); 

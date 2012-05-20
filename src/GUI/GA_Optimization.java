@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,33 +33,19 @@ public class GA_Optimization extends javax.swing.JFrame {
     /**
      * Creates new form GA_Optimization
      */
-    private String[] columns = {"Package ID", "Weight", "Length", "Breadth", "Height", "Safety"};
+    private String[] columns = {"Package ID", "Weight", "Length", "Safety"};
     public Configuration conf = new DefaultConfiguration();
     private DefaultTableModel dt = new DefaultTableModel(columns, 0);
     private SwapMutate mutationOperator;
     private OrderCrossOver orderCrossOver;
     private int populationSize = 200;
     private Genotype genoType;
-    private int MAX_ALLOWED_EVOLUTIONS = 2000;
-    
 
     public GA_Optimization() {
-        try {
-            initComponents();
-            conf.setPreservFittestIndividual(true);
-            conf.setKeepPopulationSizeConstant(false);
-            conf.getGeneticOperators().clear();
-            mutationOperator = new SwapMutate(conf);
-            orderCrossOver = new OrderCrossOver(conf);
-            conf.addGeneticOperator(mutationOperator);
-            conf.addGeneticOperator(orderCrossOver);
-            conf.setPopulationSize(populationSize);
-            
 
-            populateData();
-        } catch (InvalidConfigurationException ex) {
-            Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        initComponents();
+        populateData();
+
     }
 
     public void populateData() {
@@ -90,7 +77,7 @@ public class GA_Optimization extends javax.swing.JFrame {
         int totalSheet = 0;
         int totalWeight = 0;
         int totalLength = 0;
-        
+
         try {
             ws = new WorkbookSettings();
             ws.setLocale(new Locale("en", "EN"));
@@ -127,7 +114,7 @@ public class GA_Optimization extends javax.swing.JFrame {
                 Configurations.PACKAGES[i - 1].setLength(Integer.parseInt(rowData[2].getContents()));
                 Configurations.PACKAGES[i - 1].setSafetyFactor(Integer.parseInt(rowData[3].getContents()));
                 totalLength += Integer.parseInt(rowData[2].getContents());
-                totalWeight += Integer.parseInt(rowData[1].getContents());                                
+                totalWeight += Integer.parseInt(rowData[1].getContents());
                 dt.addRow(row);
             }
             workbook.close();
@@ -136,9 +123,9 @@ public class GA_Optimization extends javax.swing.JFrame {
         } catch (BiffException e) {
             e.printStackTrace();
         }
-        Configurations.AVERAGE_WEIGHT=totalWeight/64;
-        Configurations.AVERAGE_LENGTH=totalLength/64;
-        Configurations.BOX_LENGTH=(int) (Configurations.AVERAGE_LENGTH*4+4);
+        Configurations.AVERAGE_WEIGHT = totalWeight / 64;
+        Configurations.AVERAGE_LENGTH = totalLength / 64;
+        Configurations.BOX_LENGTH = (int) (Configurations.AVERAGE_LENGTH * 4 + 4);
     }
     /*
      * Returns the Headings used inside the excel sheet
@@ -219,32 +206,52 @@ public class GA_Optimization extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            genoType = Genotype.randomInitialGenotype(conf);
-            Gene[] sampleGene = new Gene[64];
+
+            conf.setPreservFittestIndividual(true);
+            conf.setKeepPopulationSizeConstant(false);
+            conf.getGeneticOperators().clear();
+            mutationOperator = new SwapMutate(conf);
+            orderCrossOver = new OrderCrossOver(conf);
+            conf.addGeneticOperator(orderCrossOver);
+            conf.addGeneticOperator(mutationOperator);            
+            conf.setPopulationSize(populationSize);
+            Constraint constraint = new Constraint();
+            //what they have worked on is keeping size of chromosome to 64 shile supplying 1 gene what
+            //i am doing is keeping 64 gene with no specific size
+            WeightDistributionUniformity fitness = new WeightDistributionUniformity();
+            conf.setFitnessFunction(fitness);
+
+            IntegerGene[] sampleGene = new IntegerGene[64];
+            
+
             for (int i = 0; i < 64; i++) {
                 try {
-                    sampleGene[i] = new IntegerGene();
-                    sampleGene[i].setAllele(new Integer(i));
+                    sampleGene[i] = new IntegerGene(conf,i+1,i+1);
+                    sampleGene[i].setAllele(i+1);                    
                 } catch (InvalidConfigurationException ex) {
                     Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
-            Constraint constraint = new Constraint();
-            //what they have worked on is keeping size of chromosome to 64 shile supplying 1 gene what
-            //i am doing is keeping 64 gene with no specific size
-
             IChromosome sampleChromosome = new Chromosome(conf, sampleGene, constraint);
             conf.setSampleChromosome(sampleChromosome);
-            WeightDistributionUniformity fitness = new WeightDistributionUniformity();
-            conf.setFitnessFunction(fitness);
             conf.setPopulationSize(100);
             Genotype population = Genotype.randomInitialGenotype(conf);
-            for (int i = 0; i < MAX_ALLOWED_EVOLUTIONS; i++) {
+
+            for (int i = 0; i < 200; i++) {
                 if (!uniqueChromosomes(population.getPopulation())) {
                     throw new RuntimeException("Invalid state in generation " + i);
                 }
+                List operators=population.getConfiguration().getGeneticOperators();
                 population.evolve();
+                IChromosome fittest = population.getFittestChromosome();
+                double fitnessValue = fittest.getFitnessValue();
+                int popNUm = population.getPopulation().size();
+                int generation = population.getConfiguration().getGenerationNr();
+                System.out.println(fitnessValue);
+                Gene[] solution = fittest.getGenes();
+                /*for (i = 0; i < 64; i++) {
+                    System.out.print(solution[i].getAllele() + "\t");
+                }*/
             }
 
         } catch (InvalidConfigurationException ex) {
