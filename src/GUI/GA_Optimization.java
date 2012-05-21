@@ -213,7 +213,7 @@ public class GA_Optimization extends javax.swing.JFrame {
             mutationOperator = new SwapMutate(conf);
             orderCrossOver = new OrderCrossOver(conf);
             conf.addGeneticOperator(orderCrossOver);
-            conf.addGeneticOperator(mutationOperator);            
+            conf.addGeneticOperator(mutationOperator);
             conf.setPopulationSize(populationSize);
             Constraint constraint = new Constraint();
             //what they have worked on is keeping size of chromosome to 64 shile supplying 1 gene what
@@ -222,12 +222,11 @@ public class GA_Optimization extends javax.swing.JFrame {
             conf.setFitnessFunction(fitness);
 
             IntegerGene[] sampleGene = new IntegerGene[64];
-            
 
             for (int i = 0; i < 64; i++) {
                 try {
-                    sampleGene[i] = new IntegerGene(conf,i+1,i+1);
-                    sampleGene[i].setAllele(i+1);                    
+                    sampleGene[i] = new IntegerGene(conf, i + 1, i + 1);
+                    sampleGene[i].setAllele(i + 1);
                 } catch (InvalidConfigurationException ex) {
                     Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -236,12 +235,20 @@ public class GA_Optimization extends javax.swing.JFrame {
             conf.setSampleChromosome(sampleChromosome);
             conf.setPopulationSize(100);
             Genotype population = Genotype.randomInitialGenotype(conf);
-
-            for (int i = 0; i < 200; i++) {
+            List chromosomes = population.getPopulation().getChromosomes();
+            for (int i = 0; i < chromosomes.size(); i++) {
+                IChromosome chromosome = (IChromosome) chromosomes.get(i);
+                RandomGenerator generator = conf.getRandomGenerator();
+                diversifyPopulation(chromosome,generator);
+                
+            }
+            
+            for (int i = 0; i < 100; i++) {
+                System.out.println(i);
                 if (!uniqueChromosomes(population.getPopulation())) {
-                    throw new RuntimeException("Invalid state in generation " + i);
+                    break;
                 }
-                List operators=population.getConfiguration().getGeneticOperators();
+                List operators = population.getConfiguration().getGeneticOperators();
                 population.evolve();
                 IChromosome fittest = population.getFittestChromosome();
                 double fitnessValue = fittest.getFitnessValue();
@@ -249,9 +256,7 @@ public class GA_Optimization extends javax.swing.JFrame {
                 int generation = population.getConfiguration().getGenerationNr();
                 System.out.println(fitnessValue);
                 Gene[] solution = fittest.getGenes();
-                /*for (i = 0; i < 64; i++) {
-                    System.out.print(solution[i].getAllele() + "\t");
-                }*/
+                 
             }
 
         } catch (InvalidConfigurationException ex) {
@@ -322,4 +327,32 @@ public class GA_Optimization extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
+
+    private void diversifyPopulation(IChromosome chromosome, RandomGenerator generator) {
+        try {
+            IntegerGene[] Gene = new IntegerGene[64];
+            for (int i = 0; i < 64; i++) {
+                try {
+                    int value=generator.nextInt(64);
+                    
+                    for(int k=0;k<i;k++)
+                    {
+                        if((value+1)==Gene[k].intValue())
+                        {
+                            value=generator.nextInt(64);
+                            k=0;
+                        }
+                    }
+                    
+                    Gene[i] = new IntegerGene(conf, value+1,value+1);
+                    Gene[i].setAllele(value + 1);                    
+                } catch (InvalidConfigurationException ex) {
+                    Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }            
+            chromosome.setGenes(Gene);
+        } catch (InvalidConfigurationException ex) {
+            Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }
