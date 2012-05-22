@@ -32,7 +32,7 @@ public class WeightDistributionUniformity extends FitnessFunction {
             count++;
             if ((i % 4) == 0) {
                 count = 0;
-                int level = (i / 4) % 4;
+                int level = ((i / 4) % 4);
                 if(level==0)
                     level=4;
                 score += calculateStackScore(packageId, level);

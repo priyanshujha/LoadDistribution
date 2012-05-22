@@ -16,6 +16,7 @@ public class Constraint implements IGeneConstraintChecker{
 
     @Override
     public boolean verify(Gene a_gene, Object a_alleleValue, IChromosome a_chromosome, int a_geneIndex) {
+        
         if (a_alleleValue == null) {
             return true;
         }
@@ -31,6 +32,8 @@ public class Constraint implements IGeneConstraintChecker{
         }
         if(totalLength>Configurations.BOX_LENGTH)
         {
+            
+            System.out.println("Length Exceeding");
             return false;
         }
         return true;               

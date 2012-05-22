@@ -65,6 +65,12 @@ public class OrderCrossOver extends BaseGeneticOperator {
             child2 = operateChromosome(parent2, parent1, child2);
             firstMate.setGenes(child1);
             secondMate.setGenes(child2);
+            Configurations.UniquenessCheckerGenePrinter(parent1,"Parent 1");
+            Configurations.UniquenessCheckerGenePrinter(parent2,"Parent 2");
+            Configurations.UniquenessCheckerGenePrinter(parent1,"Child 1");
+            Configurations.UniquenessCheckerGenePrinter(parent2,"Child 2");
+            
+            
         } catch (InvalidConfigurationException cex) {
             throw new Error("Error occured while operating on:" + firstMate
                     + " and " + secondMate + ". First from crossover. Error message: " + cex.getMessage());

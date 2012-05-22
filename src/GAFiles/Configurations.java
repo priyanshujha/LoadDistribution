@@ -5,6 +5,7 @@
 package GAFiles;
 
 import Package.PackageSpecifications;
+import org.jgap.Gene;
 
 /**
  *
@@ -16,5 +17,29 @@ public class Configurations {
     public static int BOX_LENGTH=0;
     public static int MAX_ALLOWED_EVOLUTIONS = 5000;
     public static PackageSpecifications[] PACKAGES=new PackageSpecifications[64];
-    
+    public static void GenePrinter(Gene[]x)
+    {
+        for(int i=0;i<64;i++)
+        {
+            System.out.print(x[i].getAllele()+"\t");
+        }
+        System.out.println("");
+    }
+    public static void UniquenessCheckerGenePrinter(Gene[]x,String status)
+    {
+        System.out.println(status);
+        for(int i=0;i<64;i++)
+        {
+            for(int k=i+1;k<64;k++)
+            {
+                int val=(Integer)x[i].getAllele();
+                int val2=(Integer)x[k].getAllele();
+                if(val==val2)
+                {
+                    System.out.println("Not unique "+status+val);
+                }
+            }
+        }
+        System.out.println("");
+    }
 }

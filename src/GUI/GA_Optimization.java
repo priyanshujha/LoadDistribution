@@ -101,7 +101,7 @@ public class GA_Optimization extends javax.swing.JFrame {
             for (int i = 1; i < rowCount; i++) {
                 //Get Individual Row
                 rowData = s.getRow(i);
-                String[] row = new String[6];
+                String[] row = new String[4];
                 row[0] = rowData[0].getContents();
                 row[1] = rowData[1].getContents();
                 row[2] = rowData[2].getContents();
@@ -207,8 +207,12 @@ public class GA_Optimization extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
 
+            
             conf.setPreservFittestIndividual(true);
             conf.setKeepPopulationSizeConstant(false);
+            conf.removeNaturalSelectors(true);
+            WeightedRouletteSelector selector=new WeightedRouletteSelector(conf);
+            conf.addNaturalSelector(selector,false);
             conf.getGeneticOperators().clear();
             mutationOperator = new SwapMutate(conf);
             orderCrossOver = new OrderCrossOver(conf);
@@ -222,7 +226,6 @@ public class GA_Optimization extends javax.swing.JFrame {
             conf.setFitnessFunction(fitness);
 
             IntegerGene[] sampleGene = new IntegerGene[64];
-
             for (int i = 0; i < 64; i++) {
                 try {
                     sampleGene[i] = new IntegerGene(conf, i + 1, i + 1);
@@ -231,7 +234,9 @@ public class GA_Optimization extends javax.swing.JFrame {
                     Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+            
             IChromosome sampleChromosome = new Chromosome(conf, sampleGene, constraint);
+            sampleChromosome.setConstraintChecker(constraint);
             conf.setSampleChromosome(sampleChromosome);
             conf.setPopulationSize(100);
             Genotype population = Genotype.randomInitialGenotype(conf);
@@ -239,24 +244,45 @@ public class GA_Optimization extends javax.swing.JFrame {
             for (int i = 0; i < chromosomes.size(); i++) {
                 IChromosome chromosome = (IChromosome) chromosomes.get(i);
                 RandomGenerator generator = conf.getRandomGenerator();
-                diversifyPopulation(chromosome,generator);
-                
+                diversifyPopulation(chromosome, generator);
+
             }
-            
+
             for (int i = 0; i < 100; i++) {
-                System.out.println(i);
+                
                 if (!uniqueChromosomes(population.getPopulation())) {
                     break;
                 }
-                List operators = population.getConfiguration().getGeneticOperators();
+                
                 population.evolve();
                 IChromosome fittest = population.getFittestChromosome();
                 double fitnessValue = fittest.getFitnessValue();
                 int popNUm = population.getPopulation().size();
                 int generation = population.getConfiguration().getGenerationNr();
+                
                 System.out.println(fitnessValue);
                 Gene[] solution = fittest.getGenes();
-                 
+                String[] columns = {"Level", "Box ID", "Package ID", "Weight", "Length", "Safety"};
+                dt = new DefaultTableModel(columns, 0);
+                System.out.println("Fittest gene");
+                
+                for (int k = 0; k < 64; k++) {
+                    String[] row = new String[6];
+                    int level = ((k / 4) % 4)+1;                    
+                    int boxID = (k / 4);
+                    
+                    row[0] = level + "";
+                    row[1] = boxID + "";
+
+                    row[2] = Configurations.PACKAGES[(Integer) solution[k].getAllele() - 1].getId() + "";
+                    row[3] = Configurations.PACKAGES[(Integer) solution[k].getAllele() - 1].getWt() + "";
+                    row[4] = Configurations.PACKAGES[(Integer) solution[k].getAllele() - 1].getLength() + "";
+                    row[5] = Configurations.PACKAGES[(Integer) solution[k].getAllele() - 1].getSafetyFactor() + "";
+
+                    dt.addRow(row);
+                }
+                jTable1.setModel(dt);
+                this.validate();
             }
 
         } catch (InvalidConfigurationException ex) {
@@ -333,23 +359,21 @@ public class GA_Optimization extends javax.swing.JFrame {
             IntegerGene[] Gene = new IntegerGene[64];
             for (int i = 0; i < 64; i++) {
                 try {
-                    int value=generator.nextInt(64);
-                    
-                    for(int k=0;k<i;k++)
-                    {
-                        if((value+1)==Gene[k].intValue())
-                        {
-                            value=generator.nextInt(64);
-                            k=0;
+                    int value = generator.nextInt(64);
+                    for (int k = 0; k < i; k++) {
+                        
+                        if ((value + 1) == Gene[k].intValue()) {
+                            value = generator.nextInt(64);
+                            k = -1;
+                            
                         }
-                    }
-                    
-                    Gene[i] = new IntegerGene(conf, value+1,value+1);
-                    Gene[i].setAllele(value + 1);                    
+                    }                                       
+                    Gene[i] = new IntegerGene(conf, value + 1, value + 1);
+                    Gene[i].setAllele(value + 1);
                 } catch (InvalidConfigurationException ex) {
                     Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }            
+            }           
             chromosome.setGenes(Gene);
         } catch (InvalidConfigurationException ex) {
             Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);

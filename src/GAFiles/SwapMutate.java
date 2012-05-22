@@ -13,7 +13,7 @@ import org.jgap.util.ICloneable;
 
 public class SwapMutate extends MutationOperator {
 
-    private double mutationRate;
+    private double mutationRate=0.2;
     private boolean adaptive = false;
 
     public SwapMutate(Configuration config) throws InvalidConfigurationException {
@@ -23,8 +23,7 @@ public class SwapMutate extends MutationOperator {
     @Override
     public void operate(Population a_population, List a_candidateChromosomes) {
         int size = Math.min(getConfiguration().getPopulationSize(),
-                a_population.size());
-
+                a_population.size());        
         int numMutation = (int) (size * mutationRate);
         RandomGenerator generator = getConfiguration().getRandomGenerator();
         for (int i = 0; i < numMutation; i++) {
@@ -57,9 +56,9 @@ public class SwapMutate extends MutationOperator {
     private Gene[] operateChromosome(Gene[] parent, Gene[] child) {
 
         RandomGenerator generator = getConfiguration().getRandomGenerator();
-        int pos1 = generator.nextInt();
+        int pos1 = generator.nextInt(64);
         generator = getConfiguration().getRandomGenerator();
-        int pos2 = generator.nextInt();
+        int pos2 = generator.nextInt(64);
         child = parent;
         child[pos2] = parent[pos1];
         child[pos1] = parent[pos2];
