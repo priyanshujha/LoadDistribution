@@ -27,7 +27,7 @@ public class Configurations {
     }
     public static void UniquenessCheckerGenePrinter(Gene[]x,String status)
     {
-        System.out.println(status);
+        
         for(int i=0;i<64;i++)
         {
             for(int k=i+1;k<64;k++)
@@ -37,9 +37,10 @@ public class Configurations {
                 if(val==val2)
                 {
                     System.out.println("Not unique "+status+val);
+                    GenePrinter(x);
                 }
             }
         }
-        System.out.println("");
+        
     }
 }

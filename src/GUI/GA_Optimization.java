@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -38,8 +39,9 @@ public class GA_Optimization extends javax.swing.JFrame {
     private DefaultTableModel dt = new DefaultTableModel(columns, 0);
     private SwapMutate mutationOperator;
     private OrderCrossOver orderCrossOver;
-    private int populationSize = 200;
+    private int populationSize = 5;
     private Genotype genoType;
+    Constraint constraint = new Constraint();
 
     public GA_Optimization() {
 
@@ -77,6 +79,7 @@ public class GA_Optimization extends javax.swing.JFrame {
         int totalSheet = 0;
         int totalWeight = 0;
         int totalLength = 0;
+
 
         try {
             ws = new WorkbookSettings();
@@ -207,70 +210,86 @@ public class GA_Optimization extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
 
-            
+
             conf.setPreservFittestIndividual(true);
-            conf.setKeepPopulationSizeConstant(false);
+            conf.setKeepPopulationSizeConstant(true);
             conf.removeNaturalSelectors(true);
-            WeightedRouletteSelector selector=new WeightedRouletteSelector(conf);
-            conf.addNaturalSelector(selector,false);
+            WeightedRouletteSelector selector = new WeightedRouletteSelector(conf);
+            conf.addNaturalSelector(selector, false);
             conf.getGeneticOperators().clear();
             mutationOperator = new SwapMutate(conf);
             orderCrossOver = new OrderCrossOver(conf);
             conf.addGeneticOperator(orderCrossOver);
             conf.addGeneticOperator(mutationOperator);
             conf.setPopulationSize(populationSize);
-            Constraint constraint = new Constraint();
+
             //what they have worked on is keeping size of chromosome to 64 shile supplying 1 gene what
             //i am doing is keeping 64 gene with no specific size
             WeightDistributionUniformity fitness = new WeightDistributionUniformity();
             conf.setFitnessFunction(fitness);
-
+            System.out.println(Configurations.BOX_LENGTH);
             IntegerGene[] sampleGene = new IntegerGene[64];
             for (int i = 0; i < 64; i++) {
                 try {
                     sampleGene[i] = new IntegerGene(conf, i + 1, i + 1);
+                    //       sampleGene[i].setConstraintChecker(constraint);                    
                     sampleGene[i].setAllele(i + 1);
                 } catch (InvalidConfigurationException ex) {
                     Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            
+
             IChromosome sampleChromosome = new Chromosome(conf, sampleGene, constraint);
-            sampleChromosome.setConstraintChecker(constraint);
+
             conf.setSampleChromosome(sampleChromosome);
             conf.setPopulationSize(100);
+
             Genotype population = Genotype.randomInitialGenotype(conf);
             List chromosomes = population.getPopulation().getChromosomes();
             for (int i = 0; i < chromosomes.size(); i++) {
                 IChromosome chromosome = (IChromosome) chromosomes.get(i);
                 RandomGenerator generator = conf.getRandomGenerator();
                 diversifyPopulation(chromosome, generator);
-
             }
 
             for (int i = 0; i < 100; i++) {
-                
+
                 if (!uniqueChromosomes(population.getPopulation())) {
                     break;
                 }
-                
+                List<IChromosome> populationChromosomes = population.getPopulation().getChromosomes();
+                Iterator itr = populationChromosomes.iterator();
+                System.out.println("Before Evolution" + populationChromosomes.size());
+                while (itr.hasNext()) {
+                    IChromosome temp = (IChromosome) itr.next();
+                    Configurations.UniquenessCheckerGenePrinter(temp.getGenes(), null);
+                }
+
                 population.evolve();
+                populationChromosomes = population.getPopulation().getChromosomes();
+                itr = populationChromosomes.iterator();
+                System.out.println("Affter Evolution" + populationChromosomes.size());
+                while (itr.hasNext()) {
+                    IChromosome temp = (IChromosome) itr.next();
+                    Configurations.UniquenessCheckerGenePrinter(temp.getGenes(), null);
+                }
+                System.out.println("\n\n");
                 IChromosome fittest = population.getFittestChromosome();
                 double fitnessValue = fittest.getFitnessValue();
                 int popNUm = population.getPopulation().size();
                 int generation = population.getConfiguration().getGenerationNr();
-                
+
                 System.out.println(fitnessValue);
                 Gene[] solution = fittest.getGenes();
                 String[] columns = {"Level", "Box ID", "Package ID", "Weight", "Length", "Safety"};
                 dt = new DefaultTableModel(columns, 0);
                 System.out.println("Fittest gene");
-                
+
                 for (int k = 0; k < 64; k++) {
                     String[] row = new String[6];
-                    int level = ((k / 4) % 4)+1;                    
+                    int level = ((k / 4) % 4) + 1;
                     int boxID = (k / 4);
-                    
+
                     row[0] = level + "";
                     row[1] = boxID + "";
 
@@ -355,28 +374,29 @@ public class GA_Optimization extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void diversifyPopulation(IChromosome chromosome, RandomGenerator generator) {
-        try {
-            IntegerGene[] Gene = new IntegerGene[64];
+
+        IntegerGene[] Gene = new IntegerGene[64];
+        do {
+
             for (int i = 0; i < 64; i++) {
                 try {
                     int value = generator.nextInt(64);
                     for (int k = 0; k < i; k++) {
-                        
+
                         if ((value + 1) == Gene[k].intValue()) {
                             value = generator.nextInt(64);
                             k = -1;
-                            
+
                         }
-                    }                                       
+                    }
                     Gene[i] = new IntegerGene(conf, value + 1, value + 1);
+                    //Gene[i].setConstraintChecker(constraint);
                     Gene[i].setAllele(value + 1);
+                    chromosome.setGenes(Gene);
                 } catch (InvalidConfigurationException ex) {
                     Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }           
-            chromosome.setGenes(Gene);
-        } catch (InvalidConfigurationException ex) {
-            Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            }
+        } while (constraint.verify(null, null, chromosome, 0));
     }
 }

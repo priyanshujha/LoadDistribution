@@ -53,7 +53,7 @@ public class WeightDistributionUniformity extends FitnessFunction {
             stackLength += Configurations.PACKAGES[packageId[i]-1].getLength();
             safetyFactor = Configurations.PACKAGES[packageId[i]-1].getSafetyFactor();
             if (safetyFactor != level) {
-                penalty += Math.abs(safetyFactor - level) * 10;
+                penalty += Math.abs(safetyFactor - level) * 50;
             }
         }
         double wtScore = Math.pow((stackWeight - Configurations.AVERAGE_WEIGHT), 2);

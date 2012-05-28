@@ -65,10 +65,14 @@ public class OrderCrossOver extends BaseGeneticOperator {
             child2 = operateChromosome(parent2, parent1, child2);
             firstMate.setGenes(child1);
             secondMate.setGenes(child2);
+                      
+            
             Configurations.UniquenessCheckerGenePrinter(parent1,"Parent 1");
             Configurations.UniquenessCheckerGenePrinter(parent2,"Parent 2");
             Configurations.UniquenessCheckerGenePrinter(parent1,"Child 1");
             Configurations.UniquenessCheckerGenePrinter(parent2,"Child 2");
+            
+            
             
             
         } catch (InvalidConfigurationException cex) {
@@ -117,12 +121,12 @@ public class OrderCrossOver extends BaseGeneticOperator {
                 }
             } 
             if (i >= 63) {
-                i = 0;
+                i = -1;
             }
         }
 
         for (int j = 0; j < pos1; j++) {
-            if (i >= 63) {
+            if (i > 63) {
                 i = 0;               
             }
             int value = (Integer) parent2[i].getAllele();            
