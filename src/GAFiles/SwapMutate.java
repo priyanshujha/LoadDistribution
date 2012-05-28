@@ -15,6 +15,7 @@ public class SwapMutate extends MutationOperator {
 
     private double mutationRate = 0.2;
     private boolean adaptive = false;
+    private Constraint constraint = new Constraint();
 
     public SwapMutate(Configuration config) throws InvalidConfigurationException {
         super(config);
@@ -35,7 +36,10 @@ public class SwapMutate extends MutationOperator {
             // they'll be considered for natural selection during the next
             // phase of evolution.
             // -----------------------------------------------------------
-            a_candidateChromosomes.add(mate);
+            
+            if (constraint.verify(null,null,mate,0)) {
+                a_candidateChromosomes.add(mate);
+            }
 
         }
 
@@ -46,7 +50,7 @@ public class SwapMutate extends MutationOperator {
         Gene[] parent = mate.getGenes();
         Gene[] child = new Gene[64];
         try {
-            child = operateChromosome(parent, child);            
+            child = operateChromosome(parent, child);
             Configurations.UniquenessCheckerGenePrinter(parent, "Mutated Parent");
             Configurations.UniquenessCheckerGenePrinter(child, "Mutated Child");
             mate.setGenes(child);

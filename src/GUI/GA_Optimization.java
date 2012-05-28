@@ -128,7 +128,7 @@ public class GA_Optimization extends javax.swing.JFrame {
         }
         Configurations.AVERAGE_WEIGHT = totalWeight / 64;
         Configurations.AVERAGE_LENGTH = totalLength / 64;
-        Configurations.BOX_LENGTH = (int) (Configurations.AVERAGE_LENGTH * 4 + 4);
+        Configurations.BOX_LENGTH = (int) (Configurations.AVERAGE_LENGTH * 4 + 10);
     }
     /*
      * Returns the Headings used inside the excel sheet
@@ -153,18 +153,12 @@ public class GA_Optimization extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox();
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTable1.setModel(dt);
         jScrollPane1.setViewportView(jTable1);
-
-        jLabel1.setText("Method :");
-
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Order", "Group" }));
 
         jButton1.setText("Optimize");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -179,29 +173,21 @@ public class GA_Optimization extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 747, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(51, 51, 51))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 718, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(42, 42, 42))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton1)
-                        .addGap(0, 569, Short.MAX_VALUE)))
+                .addGap(107, 107, 107)
+                .addComponent(jButton1)
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(19, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 606, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20))
         );
 
         pack();
@@ -227,22 +213,20 @@ public class GA_Optimization extends javax.swing.JFrame {
             //i am doing is keeping 64 gene with no specific size
             WeightDistributionUniformity fitness = new WeightDistributionUniformity();
             conf.setFitnessFunction(fitness);
-            System.out.println(Configurations.BOX_LENGTH);
             IntegerGene[] sampleGene = new IntegerGene[64];
             for (int i = 0; i < 64; i++) {
                 try {
                     sampleGene[i] = new IntegerGene(conf, i + 1, i + 1);
-                    //       sampleGene[i].setConstraintChecker(constraint);                    
                     sampleGene[i].setAllele(i + 1);
                 } catch (InvalidConfigurationException ex) {
                     Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
-            IChromosome sampleChromosome = new Chromosome(conf, sampleGene, constraint);
+            IChromosome sampleChromosome = new Chromosome(conf, sampleGene);
 
             conf.setSampleChromosome(sampleChromosome);
-            conf.setPopulationSize(100);
+            conf.setPopulationSize(200);
 
             Genotype population = Genotype.randomInitialGenotype(conf);
             List chromosomes = population.getPopulation().getChromosomes();
@@ -251,24 +235,25 @@ public class GA_Optimization extends javax.swing.JFrame {
                 RandomGenerator generator = conf.getRandomGenerator();
                 diversifyPopulation(chromosome, generator);
             }
-
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 200; i++) {
 
                 if (!uniqueChromosomes(population.getPopulation())) {
                     break;
                 }
                 List<IChromosome> populationChromosomes = population.getPopulation().getChromosomes();
                 Iterator itr = populationChromosomes.iterator();
-                System.out.println("Before Evolution" + populationChromosomes.size());
+                System.out.println("Population "+ i);
                 while (itr.hasNext()) {
                     IChromosome temp = (IChromosome) itr.next();
+                    if (!constraint.verify(null, null, temp, 0)) {
+                        System.out.println("Length Exceeded");
+                    }
                     Configurations.UniquenessCheckerGenePrinter(temp.getGenes(), null);
                 }
 
                 population.evolve();
                 populationChromosomes = population.getPopulation().getChromosomes();
                 itr = populationChromosomes.iterator();
-                System.out.println("Affter Evolution" + populationChromosomes.size());
                 while (itr.hasNext()) {
                     IChromosome temp = (IChromosome) itr.next();
                     Configurations.UniquenessCheckerGenePrinter(temp.getGenes(), null);
@@ -284,7 +269,7 @@ public class GA_Optimization extends javax.swing.JFrame {
                 String[] columns = {"Level", "Box ID", "Package ID", "Weight", "Length", "Safety"};
                 dt = new DefaultTableModel(columns, 0);
                 System.out.println("Fittest gene");
-
+                constraint.verify(null, null, fittest, 0);
                 for (int k = 0; k < 64; k++) {
                     String[] row = new String[6];
                     int level = ((k / 4) % 4) + 1;
@@ -367,8 +352,6 @@ public class GA_Optimization extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JComboBox jComboBox1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
@@ -397,6 +380,7 @@ public class GA_Optimization extends javax.swing.JFrame {
                     Logger.getLogger(GA_Optimization.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        } while (constraint.verify(null, null, chromosome, 0));
+        } while (!constraint.verify(null, null, chromosome, 0));
+
     }
 }

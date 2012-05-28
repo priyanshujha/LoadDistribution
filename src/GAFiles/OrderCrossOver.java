@@ -22,7 +22,7 @@ public class OrderCrossOver extends BaseGeneticOperator {
     private boolean adaptive = false;
     private int crossoverPosition = 20;
     private Configuration config;
-
+    private Constraint constraint=new Constraint();
     public OrderCrossOver(Configuration config) throws InvalidConfigurationException {
         super(config);
         this.config = config;
@@ -39,13 +39,22 @@ public class OrderCrossOver extends BaseGeneticOperator {
                     generator.nextInt(size))).clone();
             IChromosome secondMate = (IChromosome) ((ICloneable) a_population.getChromosome(
                     generator.nextInt(size))).clone();
+            
+            
             operate(firstMate, secondMate);
             // Add the modified chromosomes to the candidate pool so that
             // they'll be considered for natural selection during the next
             // phase of evolution.
             // -----------------------------------------------------------
-            a_candidateChromosomes.add(firstMate);
-            a_candidateChromosomes.add(secondMate);
+            if(constraint.verify(null,null, secondMate,0))
+            {
+                a_candidateChromosomes.add(secondMate);
+            }
+            if(constraint.verify(null,null, firstMate,0))
+            {
+                a_candidateChromosomes.add(firstMate);
+            }
+            
         }
     }
 
@@ -64,15 +73,12 @@ public class OrderCrossOver extends BaseGeneticOperator {
             child1 = operateChromosome(parent1, parent2, child1);
             child2 = operateChromosome(parent2, parent1, child2);
             firstMate.setGenes(child1);
-            secondMate.setGenes(child2);
-                      
+            secondMate.setGenes(child2);                      
             
             Configurations.UniquenessCheckerGenePrinter(parent1,"Parent 1");
             Configurations.UniquenessCheckerGenePrinter(parent2,"Parent 2");
             Configurations.UniquenessCheckerGenePrinter(parent1,"Child 1");
-            Configurations.UniquenessCheckerGenePrinter(parent2,"Child 2");
-            
-            
+            Configurations.UniquenessCheckerGenePrinter(parent2,"Child 2");                       
             
             
         } catch (InvalidConfigurationException cex) {
