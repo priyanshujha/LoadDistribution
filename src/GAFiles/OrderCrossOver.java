@@ -19,6 +19,10 @@ import org.jgap.util.ICloneable;
 public class OrderCrossOver extends BaseGeneticOperator {
 
     private double crossoverRate = 0.3f;
+
+    public void setCrossoverRate(double crossoverRate) {
+        this.crossoverRate = crossoverRate;
+    }
     private boolean adaptive = false;
     private int crossoverPosition = 20;
     private Configuration config;
@@ -27,12 +31,12 @@ public class OrderCrossOver extends BaseGeneticOperator {
         super(config);
         this.config = config;
     }
-
+    
     @Override
     public void operate(Population a_population, List a_candidateChromosomes) {
         int size = Math.min(getConfiguration().getPopulationSize(), a_population.size());
         // if 0.6, then 0.3*size times cross over,each take two
-        int numCrossovers = (int) (size * crossoverRate);
+        int numCrossovers = (int) (size * crossoverRate);        
         RandomGenerator generator = getConfiguration().getRandomGenerator();
         for (int i = 0; i < numCrossovers; i++) {
             IChromosome firstMate = (IChromosome) ((ICloneable) a_population.getChromosome(
@@ -93,7 +97,7 @@ public class OrderCrossOver extends BaseGeneticOperator {
         RandomGenerator generator = getConfiguration().getRandomGenerator();
         int pos1 = generator.nextInt(64 - crossoverPosition);
         int pos2 = pos1 + crossoverPosition;
-
+        
         HashMap<Integer, Integer> values = new HashMap<Integer, Integer>();
         for (i = pos1; i <= pos2; i++) {
             try {

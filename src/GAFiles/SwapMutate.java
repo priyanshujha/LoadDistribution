@@ -13,7 +13,7 @@ import org.jgap.util.ICloneable;
 
 public class SwapMutate extends MutationOperator {
 
-    private double mutationRate = 0.2;
+    private double mutationRate = 0.1f;
     private boolean adaptive = false;
     private Constraint constraint = new Constraint();
 
@@ -73,5 +73,9 @@ public class SwapMutate extends MutationOperator {
         return child;
 
 
+    }
+
+    void setMutationRate(double MUTATION_RATE) {
+        this.mutationRate=MUTATION_RATE;
     }
 }

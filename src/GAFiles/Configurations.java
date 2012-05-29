@@ -17,6 +17,12 @@ public class Configurations {
     public static int BOX_LENGTH=0;
     public static int MAX_ALLOWED_EVOLUTIONS = 5000;
     public static PackageSpecifications[] PACKAGES=new PackageSpecifications[64];
+    public static boolean ADAPTIVE=false;
+    public static int NO_OF_EVOLUTIONS=500;
+    public static int POPULATION_SIZE=200;
+    public static double CROSSOVER_RATE=0.6f;
+    public static double MUTATION_RATE=0.7f;
+    
     public static void GenePrinter(Gene[]x)
     {
         for(int i=0;i<64;i++)
