@@ -24,7 +24,7 @@ public class OrderCrossOver extends BaseGeneticOperator {
         this.crossoverRate = crossoverRate;
     }
     private boolean adaptive = false;
-    private int crossoverPosition = 20;
+    private int crossoverPosition = 25;
     private Configuration config;
     private Constraint constraint=new Constraint();
     public OrderCrossOver(Configuration config) throws InvalidConfigurationException {

@@ -141,6 +141,7 @@ public class GAEngine {
 
     public GAEngine(UserInterface parent) {
         this.parent = parent;
+        conf.reset();
     }
 
     public static void main(String[] args) {
