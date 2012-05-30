@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import org.jgap.*;
+import org.jgap.impl.CrossoverOperator;
 import org.jgap.impl.DefaultConfiguration;
 import org.jgap.impl.IntegerGene;
 import org.jgap.impl.WeightedRouletteSelector;
@@ -32,9 +33,9 @@ public class GAEngine {
     private int populationSize = 100;
     private Genotype genoType;
     Constraint constraint = new Constraint();
-    
-    public void evolve() 
-    {
+    private double populationDiversity = 0.0f;
+
+    public void evolve() {
         try {
             mutationOperator = new SwapMutate(conf);
             orderCrossOver = new OrderCrossOver(conf);
@@ -42,6 +43,8 @@ public class GAEngine {
             if (!Configurations.ADAPTIVE) {
                 mutationOperator.setMutationRate(Configurations.MUTATION_RATE);
                 orderCrossOver.setCrossoverRate(Configurations.CROSSOVER_RATE);
+            } else {
+                Configurations.ADAPTIVE = true;
             }
             conf.setPreservFittestIndividual(true);
             conf.setKeepPopulationSizeConstant(true);
@@ -54,8 +57,7 @@ public class GAEngine {
             conf.addGeneticOperator(mutationOperator);
             conf.setPopulationSize(populationSize);
 
-            //what they have worked on is keeping size of chromosome to 64 shile supplying 1 gene what
-            //i am doing is keeping 64 gene with no specific size
+
             WeightDistributionUniformity fitness = new WeightDistributionUniformity();
             conf.setFitnessFunction(fitness);
             IntegerGene[] sampleGene = new IntegerGene[64];
@@ -86,8 +88,37 @@ public class GAEngine {
                     break;
                 }
                 List<IChromosome> populationChromosomes = population.getPopulation().getChromosomes();
-            
+
                 population.evolve();
+
+                if (Configurations.ADAPTIVE) {
+                    double bestFit = population.getFittestChromosome().getFitnessValue();
+                    double avgFit = parent.findAverageFitness(population);
+                    double generationDiversity = (double) ((bestFit - avgFit) / avgFit);                    
+
+                    if (generationDiversity > populationDiversity) {
+                        populationDiversity = generationDiversity;
+                    } else {
+                        if (generationDiversity < 0.07) {
+                            double temp = Configurations.MUTATION_RATE;
+                            temp = temp + temp * (2 * ((double) (populationDiversity - generationDiversity) / populationDiversity));
+                            if (temp > 0.2) {
+                                temp = conf.getRandomGenerator().nextDouble();
+                            }
+                            Configurations.MUTATION_RATE = temp;
+                            mutationOperator.setMutationRate(Configurations.MUTATION_RATE);
+                            
+                        } else {
+                            double temp = Configurations.CROSSOVER_RATE;
+                            temp = temp + (2 - 2 * Math.pow(generationDiversity / populationDiversity, 2));
+                            if (temp > 1) {
+                                temp = conf.getRandomGenerator().nextDouble();
+                            }
+                            Configurations.CROSSOVER_RATE = temp;
+                            orderCrossOver.setCrossoverRate(Configurations.CROSSOVER_RATE);                            
+                        }
+                    }
+                }
                 updateUI(population);
             }
         } catch (InvalidConfigurationException ex) {
@@ -113,29 +144,38 @@ public class GAEngine {
 
     private void diversifyPopulation(IChromosome chromosome, RandomGenerator generator) {
 
+        if (Configurations.NO_LENGTH || Configurations.WEIGHT_UNIFORM) {
+            createPopulation(chromosome, generator);
+        } else {
+            do {
+                
+                createPopulation(chromosome, generator);
+            } while (!constraint.verify(null, null, chromosome, 0));
+        }
+
+    }
+
+    public void createPopulation(IChromosome chromosome, RandomGenerator generator) {
         IntegerGene[] Gene = new IntegerGene[64];
-        do {
+        for (int i = 0; i < 64; i++) {
+            try {
+                int value = generator.nextInt(64);
+                for (int k = 0; k < i; k++) {
 
-            for (int i = 0; i < 64; i++) {
-                try {
-                    int value = generator.nextInt(64);
-                    for (int k = 0; k < i; k++) {
+                    if ((value + 1) == Gene[k].intValue()) {
+                        value = generator.nextInt(64);
+                        k = -1;
 
-                        if ((value + 1) == Gene[k].intValue()) {
-                            value = generator.nextInt(64);
-                            k = -1;
-
-                        }
                     }
-                    Gene[i] = new IntegerGene(conf, value + 1, value + 1);
-                    //Gene[i].setConstraintChecker(constraint);
-                    Gene[i].setAllele(value + 1);
-                    chromosome.setGenes(Gene);
-                } catch (InvalidConfigurationException ex) {
-                    Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                Gene[i] = new IntegerGene(conf, value + 1, value + 1);
+                //Gene[i].setConstraintChecker(constraint);
+                Gene[i].setAllele(value + 1);
+                chromosome.setGenes(Gene);
+            } catch (InvalidConfigurationException ex) {
+                Logger.getLogger(UserInterface.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } while (!constraint.verify(null, null, chromosome, 0));
+        }
 
     }
 
@@ -158,5 +198,4 @@ public class GAEngine {
             }
         });
     }
-    
 }

@@ -33,8 +33,9 @@ public class WeightDistributionUniformity extends FitnessFunction {
             if ((i % 4) == 0) {
                 count = 0;
                 int level = ((i / 4) % 4);
-                if(level==0)
-                    level=4;
+                if (level == 0) {
+                    level = 4;
+                }
                 score += calculateStackScore(packageId, level);
             }
         }
@@ -42,6 +43,7 @@ public class WeightDistributionUniformity extends FitnessFunction {
     }
 
     private double calculateStackScore(int[] packageId, int level) {
+
         double stackScore = 0.0f;
         int length = packageId.length;
         int stackLength = 0;
@@ -49,18 +51,21 @@ public class WeightDistributionUniformity extends FitnessFunction {
         int penalty = 0;
         int safetyFactor = 0;
         for (int i = 0; i < 4; i++) {
-            stackWeight += Configurations.PACKAGES[packageId[i]-1].getWt();
-            stackLength += Configurations.PACKAGES[packageId[i]-1].getLength();
-            safetyFactor = Configurations.PACKAGES[packageId[i]-1].getSafetyFactor();
-            
-            if (safetyFactor != level) {
-                penalty += Math.abs(safetyFactor - level) * 100;
-                //System.out.println(penalty);
+            stackWeight += Configurations.PACKAGES[packageId[i] - 1].getWt();
+            //stackLength += Configurations.PACKAGES[packageId[i]-1].getLength();
+            safetyFactor = Configurations.PACKAGES[packageId[i] - 1].getSafetyFactor();
+            if (Configurations.WEIGHT_UNIFORM || Configurations.NO_SAFETY) {
             }
+            else
+            {
+                if (safetyFactor != level) {
+                    penalty += Math.abs(safetyFactor - level) * 100;
+                }
+            }
+
         }
-        double wtScore = Math.pow((stackWeight - Configurations.AVERAGE_WEIGHT), 2);
-        double lengthScore = Math.pow((stackLength - Configurations.AVERAGE_LENGTH), 2);
-        stackScore = 10000 / (wtScore + lengthScore + penalty);
+        double wtScore = Math.pow((stackWeight - Configurations.AVERAGE_WEIGHT), 2);        
+        stackScore = 1000 / (wtScore + penalty);
         return stackScore;
     }
 }

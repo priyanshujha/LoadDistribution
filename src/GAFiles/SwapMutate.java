@@ -33,16 +33,19 @@ public class SwapMutate extends MutationOperator {
 
             mutate(mate);
             // Add the modified chromosomes to the candidate pool so that
-            // they'll be considered for natural selection during the next
+            // they'll be considered for selection during the next
             // phase of evolution.
             // -----------------------------------------------------------
-            
-            if (constraint.verify(null,null,mate,0)) {
+            if (Configurations.NO_LENGTH || Configurations.WEIGHT_UNIFORM) {
                 a_candidateChromosomes.add(mate);
+            } else {
+                
+                if (constraint.verify(null, null, mate, 0)) {
+                    a_candidateChromosomes.add(mate);
+                }
             }
 
         }
-
 
     }
 
@@ -76,6 +79,6 @@ public class SwapMutate extends MutationOperator {
     }
 
     void setMutationRate(double MUTATION_RATE) {
-        this.mutationRate=MUTATION_RATE;
+        this.mutationRate = MUTATION_RATE;
     }
 }
