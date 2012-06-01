@@ -21,15 +21,15 @@ public class Constraint implements IGeneConstraintChecker {
         if (a_alleleValue == null) {
             Gene[] geneSet = a_chromosome.getGenes();            
             int totalLength = 0;
-            int packageId = 0;
+            int containerId = 0;
             for (int i = 0; i < geneSet.length; i++) {
                 do{
-                    packageId = (Integer) geneSet[i].getAllele();
-                    totalLength += Configurations.PACKAGES[packageId-1].getLength();
+                    containerId = (Integer) geneSet[i].getAllele();
+                    totalLength += Configurations.PACKAGES[containerId-1].getLength();
                     i++;                    
                 }while((i%4)!=0);
                 
-                if (totalLength > Configurations.BOX_LENGTH) {                    
+                if (totalLength > Configurations.RACK_LENGTH) {                    
                     return false;
                 }
                 totalLength = 0;

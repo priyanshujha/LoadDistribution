@@ -14,7 +14,7 @@ import org.jgap.Gene;
 public class Configurations {
     public static double AVERAGE_WEIGHT=0.0f;
     public static double AVERAGE_LENGTH=0.0f;
-    public static int BOX_LENGTH=0;    
+    public static int RACK_LENGTH=0;    
     public static PackageSpecifications[] PACKAGES=new PackageSpecifications[64];
     public static boolean ADAPTIVE=false;
     public static int NO_OF_EVOLUTIONS=10000;
