@@ -51,7 +51,8 @@ public class WeightDistributionUniformity extends FitnessFunction {
         int penalty = 0;
         int safetyFactor = 0;
         for (int i = 0; i < 4; i++) {
-            stackWeight += Configurations.PACKAGES[packageId[i] - 1].getWt();            
+            stackWeight += Configurations.PACKAGES[packageId[i] - 1].getWt();
+            //stackLength += Configurations.PACKAGES[packageId[i]-1].getLength();
             safetyFactor = Configurations.PACKAGES[packageId[i] - 1].getSafetyFactor();
             if (Configurations.WEIGHT_UNIFORM || Configurations.NO_SAFETY) {
             }

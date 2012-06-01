@@ -56,7 +56,7 @@ public class UserInterface extends javax.swing.JFrame {
     /**
      * Creates new form GA_Optimization
      */
-    private String[] columns = {"Container ID", "Weight", "Length", "Safety"};
+    private String[] columns = {"Package ID", "Weight", "Length", "Safety"};
     private DefaultTableModel dt = new DefaultTableModel(columns, 0);
     private static UserInterface parent;
     private Thread executionThread;
@@ -87,8 +87,8 @@ public class UserInterface extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1.validate();
         jLabel6.setText("");
-        jLabel15.setText(Configurations.MUTATION_RATE + "");       
-        jLabel16.setText(Configurations.CROSSOVER_RATE + "");       
+        jLabel15.setText("");
+        jLabel16.setText("");
         jLabel17.setText("");
         jLabel23.setText("");
 
@@ -174,8 +174,8 @@ public class UserInterface extends javax.swing.JFrame {
 
         Configurations.AVERAGE_WEIGHT = totalWeight / 64;
         Configurations.AVERAGE_LENGTH = totalLength / 64;
-        Configurations.RACK_LENGTH = (int) (Configurations.AVERAGE_LENGTH * 4 + 10);
-        jLabel9.setText(Configurations.RACK_LENGTH + "");
+        Configurations.BOX_LENGTH = (int) (Configurations.AVERAGE_LENGTH * 4 + 10);
+        jLabel9.setText(Configurations.BOX_LENGTH + "");
         jLabel10.setText(Configurations.AVERAGE_WEIGHT + "");
     }
     /*
@@ -262,11 +262,7 @@ public class UserInterface extends javax.swing.JFrame {
         jSlider1.setMinorTickSpacing(1);
         jSlider1.setPaintLabels(true);
         jSlider1.setPaintTicks(true);
-        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                UserInterface.this.stateChanged(evt);
-            }
-        });
+        jSlider1.setValue(2);
 
         jLabel2.setText("Crossover Rate ");
 
@@ -276,11 +272,6 @@ public class UserInterface extends javax.swing.JFrame {
         jSlider2.setPaintLabels(true);
         jSlider2.setPaintTicks(true);
         jSlider2.setValue(2);
-        jSlider2.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                stateChangedSlider2(evt);
-            }
-        });
 
         jLabel4.setText("Adaptive Parameters :");
 
@@ -295,9 +286,9 @@ public class UserInterface extends javax.swing.JFrame {
 
         jLabel6.setText("---------");
 
-        jLabel7.setText("Average Rack Weight :");
+        jLabel7.setText("Average Box Weight :");
 
-        jLabel8.setText("Rack Length :");
+        jLabel8.setText("Box Length :");
 
         jLabel9.setText("jLabel9");
 
@@ -526,7 +517,7 @@ public class UserInterface extends javax.swing.JFrame {
         int popNUm = population.getPopulation().size();
         int generation = population.getConfiguration().getGenerationNr();
         Gene[] solution = fittest.getGenes();
-        String[] columns = {"Level", "Rack ID", "Container ID", "Rack Weight", "Rack Length", "Safety"};
+        String[] columns = {"Level", "Box ID", "Package ID", "Box Weight", "Box Length", "Safety"};
         dt = new DefaultTableModel(columns, 0);
         double[] boxWeight = new double[16];
         int[] boxLength = new int[16];
@@ -559,7 +550,7 @@ public class UserInterface extends javax.swing.JFrame {
             row[5] = Configurations.PACKAGES[(Integer) solution[k].getAllele() - 1].getSafetyFactor() + "";
             dt.addRow(row);
         }
-        DecimalFormat df = new DecimalFormat("#.####");
+        DecimalFormat df=new DecimalFormat("#.####");
         jLabel15.setText(df.format(Configurations.MUTATION_RATE) + "");
         jLabel16.setText(df.format(Configurations.CROSSOVER_RATE) + "");
         jLabel6.setText(fittest.getFitnessValue() + "");
@@ -573,7 +564,7 @@ public class UserInterface extends javax.swing.JFrame {
 
     private JFreeChart createChart(XYDataset dataset) {
 
-        JFreeChart result = ChartFactory.createXYLineChart("Fitness Values every Generation", "Generation", "Fitness Value", dataset, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart result = ChartFactory.createXYLineChart("Fitness Values every Generation", "Fitness Value", "Generation", dataset, PlotOrientation.VERTICAL, true, true, false);
         XYPlot plot = result.getXYPlot();
         TickUnitSource ticks = NumberAxis.createIntegerTickUnits();
         ValueAxis axis = plot.getRangeAxis();
@@ -617,18 +608,21 @@ public class UserInterface extends javax.swing.JFrame {
             } else {
                 Configurations.ADAPTIVE = true;
             }
-
-            if (jRadioButton3.isSelected()) {
-                Configurations.WEIGHT_UNIFORM = true;
+            
+            if(jRadioButton3.isSelected())
+            {
+                Configurations.WEIGHT_UNIFORM=true;
             }
-            if (jRadioButton4.isSelected()) {
-                Configurations.NO_LENGTH = true;
+            if(jRadioButton4.isSelected())
+            {
+                Configurations.NO_LENGTH=true;
             }
-            if (jRadioButton5.isSelected()) {
-                Configurations.NO_SAFETY = true;
+            if(jRadioButton5.isSelected())
+            {
+                Configurations.NO_SAFETY=true;
             }
             final GAEngine gaEngine = new GAEngine(parent);
-            DecimalFormat df = new DecimalFormat("#.####");
+            DecimalFormat df=new DecimalFormat("#.####");
             jLabel15.setText(df.format(Configurations.MUTATION_RATE) + "");
             jLabel16.setText(df.format(Configurations.CROSSOVER_RATE) + "");
             Runnable gaThread = new Runnable() {
@@ -658,19 +652,6 @@ public class UserInterface extends javax.swing.JFrame {
 
 
     }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void stateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stateChanged
-
-
-        Configurations.CROSSOVER_RATE = (double) jSlider1.getValue() / 100;
-        jLabel16.setText(Configurations.CROSSOVER_RATE + "");       
-
-    }//GEN-LAST:event_stateChanged
-
-    private void stateChangedSlider2(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stateChangedSlider2
-        Configurations.MUTATION_RATE = (double) jSlider2.getValue() / 1000;
-        jLabel15.setText(Configurations.MUTATION_RATE + "");
-    }//GEN-LAST:event_stateChangedSlider2
 
     /**
      * @param args the command line arguments
